@@ -19,7 +19,7 @@ object_name = "Fashion AI Caster"
 def run_yolo(input_video_url):
     
     # YOLO 모델 지정 
-    model = YOLO(f'./weights/Fashion.pt')
+    model = YOLO(f'./weights/' + os.listdir('./weights/')[0])
     results = model(input_video_url)
 
     cap = cv2.VideoCapture(input_video_url)
