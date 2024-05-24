@@ -8,6 +8,7 @@ import os
 import time 
 import ffmpeg
 from ultralytics import YOLO
+import sys
 
 '''
 object_name 변수
@@ -57,21 +58,21 @@ if __name__ == "__main__":
     )
     args=parser.parse_args()
 
-# Gradio UI
-with gr.Blocks() as demo:
-    with gr.Row():
-        with gr.Column():
-            markdown = gr.Markdown(f"# {object_name}")
-            input1 = gr.Textbox(label = "Video URL", value="http://evc.re.kr:20096/www/fashion.mp4") # Video URL 넣기 
-            btn1 = gr.Button("Run", size="sm")
-        with gr.Column():
-            output1 = gr.Video(autoplay=True) # 원본 비디오 재생 
-        with gr.Column():
-            output2 = gr.Video(autoplay=True) # 결과 비디오 재생 
-        btn1.click(fn = run_yolo, inputs=input1, outputs=[output1, output2])
+    # Gradio UI
+    with gr.Blocks() as demo:
+        with gr.Row():
+            with gr.Column():
+                markdown = gr.Markdown(f"# {object_name}")
+                input1 = gr.Textbox(label = "Video URL", value="http://evc.re.kr:20096/www/test_data/v4_demo1.mp4") # Video URL 넣기 
+                btn1 = gr.Button("Run", size="sm")
+            with gr.Column():
+                output1 = gr.Video(autoplay=True) # 원본 비디오 재생 
+            with gr.Column():
+                output2 = gr.Video(autoplay=True) # 결과 비디오 재생 
+            btn1.click(fn = run_yolo, inputs=input1, outputs=[output1, output2])
 
-demo.launch(
-        server_name=args.server_name,
-        server_port=args.server_port,
-        debug=True
-    )
+    demo.launch(
+            server_name=args.server_name,
+            server_port=args.server_port,
+            debug=True
+        )
