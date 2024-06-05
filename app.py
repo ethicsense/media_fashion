@@ -9,38 +9,79 @@ import time
 import ffmpeg
 from ultralytics import YOLO
 import sys
+from gradio_log import Log
+import io
+import contextlib
+import numpy as np
 
 '''
 object_name 변수
  : 맨 밑에 makdowon과 Model에서 사용합니다. 
 '''
 object_name = "Fashion AI Caster"
+log_file = 'output.log'
 
-# yolo 실행 
+
+class Logger:
+    def __init__(self, filename, stream):
+        self.stream = stream
+        self.log = open(filename, "a")
+
+    def write(self, message):
+        self.stream.write(message)
+        self.log.write(message)
+        
+    def flush(self):
+        self.stream.flush()
+        self.log.flush()
+        
+    def isatty(self):
+        return False
+
+sys.stdout = Logger("output.log", sys.stdout)
+sys.stderr = Logger("output.log", sys.stderr)
+
+def read_logs():
+    sys.stdout.flush()
+    with open("output.log", "r") as f:
+        return f.read()
+
+
+## yolo 실행 
 def run_yolo(input_video_url):
-    
     # YOLO 모델 지정 
     model = YOLO(f'./weights/' + os.listdir('./weights/')[0])
-    results = model(input_video_url)
 
     cap = cv2.VideoCapture(input_video_url)
     w = round(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     h = round(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    fps = int(cap.get(cv2.CAP_PROP_FPS)) 
+    fps = int(cap.get(cv2.CAP_PROP_FPS))
 
     video_name = os.path.basename(input_video_url)
     output_path = os.getcwd()+'/video/out/' + video_name
     out = cv2.VideoWriter(output_path, cv2.VideoWriter_fourcc(*'mp4v'), fps, (w, h))
 
-    for i in range(len(results)):
-        result = results[i]
-        img = result.plot()
+    while True:
+        ret, frame = cap.read()
 
+        if not ret:
+            break
+
+        result = model(frame)
+
+        if len(result[0].boxes.cls) > 0:
+            print()
+
+            for i in range(len(result[0].boxes.cls)):
+                print(result[0].names[np.array(result[0].boxes.cls)[i]])
+
+        img = result[0].plot()
         out.write(img)
+
+    cap.release()
     out.release()
-    now = time.localtime()
     resized_video = time.strftime('%Y%m%d%H%M%S') + '.mp4'
-    ffmpeg.input(output_path).output(resized_video , crf=35).run() # 영상 용량 출이기 
+    ffmpeg.input(output_path).output(resized_video, crf=35).run() # 영상 용량 축소
     return input_video_url, resized_video
 
 
@@ -60,18 +101,26 @@ if __name__ == "__main__":
 
     # Gradio UI
     with gr.Blocks() as demo:
+
         with gr.Row():
+
             with gr.Column():
                 markdown = gr.Markdown(f"# {object_name}")
                 input1 = gr.Textbox(label = "Video URL", value="http://evc.re.kr:20096/www/test_data/v4_demo1.mp4") # Video URL 넣기 
                 btn1 = gr.Button("Run", size="sm")
-            with gr.Column():
-                output1 = gr.Video(autoplay=True) # 원본 비디오 재생 
-            with gr.Column():
-                output2 = gr.Video(autoplay=True) # 결과 비디오 재생 
-            btn1.click(fn = run_yolo, inputs=input1, outputs=[output1, output2])
 
-    demo.launch(
+            with gr.Column():
+                output1 = gr.Video(autoplay=True) # 원본 비디오 재생
+
+            with gr.Column():
+                output2 = gr.Video(autoplay=True) # 결과 비디오 재생
+             
+            btn1.click(fn=run_yolo, inputs=input1, outputs=[output1, output2])
+
+        logs = gr.Textbox()
+        demo.load(read_logs, None, logs, every=1)
+
+    demo.queue().launch(
             server_name=args.server_name,
             server_port=args.server_port,
             debug=True
