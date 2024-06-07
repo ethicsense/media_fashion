@@ -9,7 +9,6 @@ import time
 import ffmpeg
 from ultralytics import YOLO
 import sys
-from gradio_log import Log
 import io
 import contextlib
 import numpy as np
@@ -25,7 +24,7 @@ log_file = 'output.log'
 class Logger:
     def __init__(self, filename, stream):
         self.stream = stream
-        self.log = open(filename, "a")
+        self.log = open(filename, "w")
 
     def write(self, message):
         self.stream.write(message)
@@ -47,7 +46,7 @@ def read_logs():
         return f.read()
 
 
-## yolo 실행 
+## yolo 실행
 def run_yolo(input_video_url):
     # YOLO 모델 지정 
     model = YOLO(f'./weights/' + os.listdir('./weights/')[0])
@@ -80,7 +79,7 @@ def run_yolo(input_video_url):
 
     cap.release()
     out.release()
-    resized_video = time.strftime('%Y%m%d%H%M%S') + '.mp4'
+    resized_video = 'video/resized_/' + time.strftime('%Y%m%d%H%M') + '.mp4'
     ffmpeg.input(output_path).output(resized_video, crf=35).run() # 영상 용량 축소
     return input_video_url, resized_video
 

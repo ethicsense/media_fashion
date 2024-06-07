@@ -8,5 +8,6 @@ output.log
 test.log
 out.log
 
-# ignore input datas
+# ignore input | output datas
 *.mp4
+video/
