@@ -12,6 +12,8 @@ import sys
 import io
 import contextlib
 import numpy as np
+import pandas as pd
+from datetime import datetime
 
 '''
 object_name 변수
@@ -59,6 +61,7 @@ def run_yolo(input_video_url):
     video_name = os.path.basename(input_video_url)
     output_path = os.getcwd()+'/video/out/' + video_name
     out = cv2.VideoWriter(output_path, cv2.VideoWriter_fourcc(*'mp4v'), fps, (w, h))
+    df = pd.DataFrame(columns=['time', 'object'])
 
     while True:
         ret, frame = cap.read()
@@ -69,14 +72,19 @@ def run_yolo(input_video_url):
         result = model(frame)
 
         if len(result[0].boxes.cls) > 0:
-            print()
+            now = datetime.now()
+            print(now)
 
             for i in range(len(result[0].boxes.cls)):
-                print(result[0].names[np.array(result[0].boxes.cls)[i]])
+                obj_name = result[0].names[np.array(result[0].boxes.cls)[i]]
+                print(obj_name)
+                new_row = pd.DataFrame({'time': [now], 'object': [obj_name]})
+                df = pd.concat([df, new_row], ignore_index=True)
 
         img = result[0].plot()
         out.write(img)
 
+    df.to_csv('detect_log_test.csv', index=False)
     cap.release()
     out.release()
     resized_video = 'video/resized_/' + time.strftime('%Y%m%d%H%M') + '.mp4'

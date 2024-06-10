@@ -7,6 +7,7 @@ runs/
 output.log
 test.log
 out.log
+*.csv
 
 # ignore input | output datas
 *.mp4
