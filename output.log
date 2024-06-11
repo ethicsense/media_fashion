@@ -1,0 +1,20 @@
+  File "/Users/bhc/opt/anaconda3/envs/edge-fw/lib/python3.8/site-packages/gradio/blocks.py", line 2619, in block_thread
+    time.sleep(0.1)
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "app.py", line 143, in <module>
+    demo.queue().launch(
+  File "/Users/bhc/opt/anaconda3/envs/edge-fw/lib/python3.8/site-packages/gradio/blocks.py", line 2524, in launch
+    self.block_thread()
+  File "/Users/bhc/opt/anaconda3/envs/edge-fw/lib/python3.8/site-packages/gradio/blocks.py", line 2623, in block_thread
+    self.server.close()
+  File "/Users/bhc/opt/anaconda3/envs/edge-fw/lib/python3.8/site-packages/gradio/http_server.py", line 68, in close
+    self.thread.join(timeout=5)
+  File "/Users/bhc/opt/anaconda3/envs/edge-fw/lib/python3.8/threading.py", line 1015, in join
+    self._wait_for_tstate_lock(timeout=max(timeout, 0))
+  File "/Users/bhc/opt/anaconda3/envs/edge-fw/lib/python3.8/threading.py", line 1027, in _wait_for_tstate_lock
+    elif lock.acquire(block, timeout):
+KeyboardInterrupt

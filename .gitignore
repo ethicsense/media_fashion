@@ -4,7 +4,6 @@ test.ipynb
 
 # ignore log dir & files
 runs/
-output.log
 test.log
 out.log
 *.csv
