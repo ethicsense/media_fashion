@@ -24,14 +24,27 @@ log_file = 'output.log'
 
 
 class Logger:
-    def __init__(self, filename, stream):
+    def __init__(self, filename, stream, max_lines=20):
         self.stream = stream
-        self.log = open(filename, "w")
+        self.filename = filename
+        self.max_lines = max_lines
+        self.log = open(filename, "r+")
+        self.keep_last_lines()
+
+    def keep_last_lines(self):
+        self.log.seek(0)
+        lines = self.log.readlines()
+        if len(lines) > self.max_lines:
+            self.log.seek(0)
+            self.log.truncate()
+            self.log.writelines(lines[-self.max_lines:])
 
     def write(self, message):
         self.stream.write(message)
         self.log.write(message)
-        
+        self.log.flush()  # Ensure all writes are flushed to the file before reading
+        self.keep_last_lines()  # Check and keep only the last max_lines after each write
+
     def flush(self):
         self.stream.flush()
         self.log.flush()
