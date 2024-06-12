@@ -100,9 +100,9 @@ def run_yolo(input_video_url):
     df.to_csv('detect_log_test.csv', index=False)
     cap.release()
     out.release()
-    resized_video = 'video/resized_/' + time.strftime('%Y%m%d%H%M') + '.mp4'
-    ffmpeg.input(output_path).output(resized_video, crf=35).run() # 영상 용량 축소
-    return input_video_url, resized_video
+    # resized_video = 'video/resized_/' + time.strftime('%Y%m%d%H%M') + '.mp4'
+    # ffmpeg.input(output_path).output(resized_video, crf=35).run() # 영상 용량 축소
+    return input_video_url, output_path
 
 
 if __name__ == "__main__":
