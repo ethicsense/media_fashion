@@ -21,6 +21,11 @@ object_name 변수
 '''
 object_name = "Fashion AI Caster"
 log_file = 'output.log'
+stop_execution = False # Global flag to control execution
+
+def stop_functions():
+    global stop_execution
+    stop_execution = True
 
 
 class Logger:
@@ -63,7 +68,8 @@ def read_logs():
 
 ## yolo 실행
 def run_yolo(input_video_url):
-    # YOLO 모델 지정 
+    global stop_execution
+    stop_execution = False  # Reset the flag at the beginning of the function
     model = YOLO(f'./weights/' + os.listdir('./weights/')[0])
 
     cap = cv2.VideoCapture(input_video_url)
@@ -77,6 +83,9 @@ def run_yolo(input_video_url):
     df = pd.DataFrame(columns=['time', 'object'])
 
     while True:
+        if stop_execution:
+            print("Stopping YOLO processing...")
+            break
         ret, frame = cap.read()
 
         if not ret:
@@ -128,6 +137,7 @@ if __name__ == "__main__":
                 markdown = gr.Markdown(f"# {object_name}")
                 input1 = gr.Textbox(label = "Video URL", value="http://evc.re.kr:20096/www/test_data/v4_demo1.mp4") # Video URL 넣기 
                 btn1 = gr.Button("Run", size="sm")
+                btn_stop = gr.Button("Stop", size='sm')
 
             with gr.Column():
                 output1 = gr.Video(autoplay=True) # 원본 비디오 재생
@@ -136,6 +146,7 @@ if __name__ == "__main__":
                 output2 = gr.Video(autoplay=True) # 결과 비디오 재생
              
             btn1.click(fn=run_yolo, inputs=input1, outputs=[output1, output2])
+            btn_stop.click(fn=stop_functions)
 
         logs = gr.Textbox()
         demo.load(read_logs, None, logs, every=1)
