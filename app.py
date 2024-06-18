@@ -19,7 +19,7 @@ from datetime import datetime
 object_name 변수
  : 맨 밑에 makdowon과 Model에서 사용합니다. 
 '''
-object_name = "Fashion AI Caster"
+object_name = "Edge AI Servant"
 log_file = 'output.log'
 stop_execution = False # Global flag to control execution
 
@@ -70,7 +70,7 @@ def read_logs():
 def run_yolo(input_video_url):
     global stop_execution
     stop_execution = False  # Reset the flag at the beginning of the function
-    model = YOLO(f'./weights/' + os.listdir('./weights/')[0])
+    model = YOLO(f'./weights/' + os.listdir('./weights/')[1])
 
     cap = cv2.VideoCapture(input_video_url)
     w = round(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
