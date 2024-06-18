@@ -70,7 +70,7 @@ def read_logs():
 def run_yolo(input_video_url):
     global stop_execution
     stop_execution = False  # Reset the flag at the beginning of the function
-    model = YOLO(f'./weights/' + os.listdir('./weights/')[1])
+    model = YOLO(f'./weights/' + os.listdir('./weights/')[0])
 
     cap = cv2.VideoCapture(input_video_url)
     w = round(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
