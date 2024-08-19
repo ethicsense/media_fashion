@@ -20,50 +20,47 @@ object_name 변수
  : 맨 밑에 makdowon과 Model에서 사용합니다. 
 '''
 object_name = "Edge AI Servant"
-log_file = 'output.log'
 stop_execution = False # Global flag to control execution
 
 def stop_functions():
     global stop_execution
     stop_execution = True
 
+## stdout logger class
+class CaptureOutput(io.StringIO):
+    def __init__(self, max_length=100):
+        super().__init__()
+        self.output = []
+        self.max_length = max_length  # 로그를 유지할 최대 줄 수 설정
+        self.auto_clear_threshold = 100  # 자동으로 클리어할 줄 수 설정
 
-class Logger:
-    def __init__(self, filename, stream, max_lines=20):
-        self.stream = stream
-        self.filename = filename
-        self.max_lines = max_lines
-        self.log = open(filename, "r+")
-        self.keep_last_lines()
+    def write(self, txt):
+        super().write(txt)
+        sys.__stdout__.write(txt)  # 터미널에도 출력
+        lines = txt.splitlines()
+        for line in lines:
+            if line:
+                self.output.append(line)
+                # 로그 줄 수가 최대 길이를 초과하면 가장 오래된 로그부터 제거
+                while len(self.output) > self.max_length:
+                    self.output.pop(0)
+                # 로그 줄 수가 자동 클리어 임계값을 초과하면 로그를 초기화
+                if len(self.output) > self.auto_clear_threshold:
+                    self.clear_output()
 
-    def keep_last_lines(self):
-        self.log.seek(0)
-        lines = self.log.readlines()
-        if len(lines) > self.max_lines:
-            self.log.seek(0)
-            self.log.truncate()
-            self.log.writelines(lines[-self.max_lines:])
+    def get_output(self):
+        return '\n'.join(self.output)
 
-    def write(self, message):
-        self.stream.write(message)
-        self.log.write(message)
-        self.log.flush()  # Ensure all writes are flushed to the file before reading
-        self.keep_last_lines()  # Check and keep only the last max_lines after each write
+    def clear_output(self):
+        self.output = []
 
-    def flush(self):
-        self.stream.flush()
-        self.log.flush()
-        
-    def isatty(self):
-        return False
+## logger instance
+capture_stream = CaptureOutput()
+sys.stdout = capture_stream
 
-sys.stdout = Logger("output.log", sys.stdout)
-sys.stderr = Logger("output.log", sys.stderr)
-
-def read_logs():
-    sys.stdout.flush()
-    with open("output.log", "r") as f:
-        return f.read()
+## Logger function
+def get_captured_output():
+    return capture_stream.get_output()
 
 
 ## yolo 실행
@@ -148,8 +145,8 @@ if __name__ == "__main__":
             btn1.click(fn=run_yolo, inputs=input1, outputs=[output1, output2])
             btn_stop.click(fn=stop_functions)
 
-        logs = gr.Textbox()
-        demo.load(read_logs, None, logs, every=1)
+        output_text = gr.Textbox(label="Progress Output", lines=20)
+        demo.load(get_captured_output, None, output_text, every=1)
 
     demo.queue().launch(
             server_name=args.server_name,
