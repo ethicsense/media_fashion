@@ -19,7 +19,7 @@ from datetime import datetime
 object_name 변수
  : 맨 밑에 makdowon과 Model에서 사용합니다. 
 '''
-object_name = "Edge AI Servant"
+object_name = "Edge AI FashionCaster"
 stop_execution = False # Global flag to control execution
 
 def stop_functions():
@@ -62,6 +62,12 @@ sys.stdout = capture_stream
 def get_captured_output():
     return capture_stream.get_output()
 
+def createDirectory(directory):
+    try:
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+    except OSError:
+        print("Error: Failed to create the directory.")
 
 ## yolo 실행
 def run_yolo(input_video_url):
@@ -121,10 +127,11 @@ if __name__ == "__main__":
     parser.add_argument(
         '--server_port',
         type=int,
-        default=7860
+        default=8779
     )
     args=parser.parse_args()
 
+    createDirectory('./video/out/')
     # Gradio UI
     with gr.Blocks() as demo:
 
