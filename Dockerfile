@@ -1,5 +1,9 @@
 FROM python
 
+LABEL app_name="fashioncaster"
+LABEL version="0.1"
+LABEL command="docker run -d -it --name fashioncaster -p 8779:8779 evcrepo/fashioncaster:x86_64-0.1"
+
 WORKDIR /home
 ADD ./model.tar.gz .
 
